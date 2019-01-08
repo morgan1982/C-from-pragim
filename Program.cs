@@ -17,7 +17,7 @@ namespace polymorphism
             get{
                 return this._id;
             }
-        }
+        } 
     }
 
     class Program
@@ -26,6 +26,10 @@ namespace polymorphism
         {
             Employee max = new Employee();
             max.Id = 12;
+            System.Console.WriteLine(max.Id);
+
+            Employee george = max;
+            george.Id = 13;
             System.Console.WriteLine(max.Id);
 
         }
