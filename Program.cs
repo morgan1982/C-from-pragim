@@ -17,6 +17,8 @@ class Program
 
         IsPromotable prm = new IsPromotable(PromoteEmp);
 
+        Employee.PromoteEmployee(empList, prm);
+
 
 
     }
