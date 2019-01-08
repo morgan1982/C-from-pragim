@@ -1,37 +1,34 @@
 ﻿using System;
 
-namespace polymorphism
+
+interface ICustomer
 {
-    class Employee
+    void Print();
+}
+interface ICustomer2 : ICustomer
+{
+    void Print2();
+}
+
+class Customer : ICustomer2
+{
+    public void Print()
     {
-        private int _id;
-        public int Id
-        {
-            set{
-                if (value < 0)
-                {
-                    throw new Exception("negative number");
-                }
-                this._id = value;
-            }
-            get{
-                return this._id;
-            }
-        } 
+        System.Console.WriteLine("Interface print method");
+    }
+    public void Print2()
+    {
+        System.Console.WriteLine("Interface Print 2");
     }
 
-    class Program
+}
+
+public class Program
+{
+    public static void Main()
     {
-        static void Main(string[] args)
-        {
-            Employee max = new Employee();
-            max.Id = 12;
-            System.Console.WriteLine(max.Id);
-
-            Employee george = max;
-            george.Id = 13;
-            System.Console.WriteLine(max.Id);
-
-        }
+        ICustomer C1 = new Customer();
+        // only the print method of the first interface is available
+        C1.Print();
     }
 }
