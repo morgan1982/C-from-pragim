@@ -1,83 +1,34 @@
 ﻿using System;
 
-namespace polymorphism
+
+class A
 {
-    public class Employee
+    public virtual void Print()
     {
-        public string FirstName = "Max";
-        public string LastName = "Goodman";
-
-        private float salary;
-
-        public void SetSalary(float amount)
-        {
-            if (amount < 0)
-            {
-                throw new Exception("Salary has to be positive");
-            }
-            this.salary = amount;
-        }
-        public float GetSalary()
-        {
-            if (this.salary > 0)
-            {
-                return salary;
-            }else {
-                System.Console.WriteLine("there is 0 amount");
-                return 0;
-            }
-        }
-
-        public virtual void PrintFullName()
-        {
-            System.Console.WriteLine("{0} {1}", this.FirstName, this.LastName);
-        }
+        System.Console.WriteLine("A implementation");
     }
-    public class PartTimeEmployee : Employee
-    {
-        public override void PrintFullName()
-        {
-            System.Console.WriteLine("{0} {1} --part time", this.FirstName, this.LastName);
-        }
+}
 
+class B : A
+{
+    public override void Print()
+    {
+        System.Console.WriteLine("B implementation");
     }
-    public class FullTimeEmployee : Employee
+}
+
+class C : A
+{
+    public override void Print()
     {
-        public override void PrintFullName()
-        {
-            System.Console.WriteLine("{0} {1} --fulltime", this.FirstName, this.LastName);
-        }
+        System.Console.WriteLine("C implementation");
     }
-    public class TemporaryEmployee : Employee
+}
+
+class Program
+{
+    public static void Main(string[] args)
     {
-        public override void PrintFullName()
-        {
-            System.Console.WriteLine("{0} {1} --temp", this.FirstName, this.LastName);
-        }
-    }
-    class Program
-    {
-        static void Main(string[] args)
-        {
-
-            // polymorpshism enables the invocation of derived class methods through baseclass reference variables
-            // in runtime
-            Employee[] employees = new Employee[4]; 
-
-            employees[0] = new Employee();
-            employees[1] = new PartTimeEmployee();
-            employees[2] = new FullTimeEmployee();
-            employees[3] = new TemporaryEmployee();
-
-            foreach(Employee e in employees)
-            {
-                e.PrintFullName();
-            }
-
-            Employee max = new Employee();
-            max.SetSalary(34.5F);
-            float salary = max.GetSalary();
-            System.Console.WriteLine("max salary is: {0}", salary);
-        }
+        System.Console.WriteLine("hello");
     }
 }
