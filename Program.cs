@@ -1,34 +1,52 @@
 ﻿using System;
 
 
-class A
+interface IA
 {
-    public virtual void Print()
+    void AMethod();
+}
+
+class A : IA
+{
+    public void AMethod()
     {
-        System.Console.WriteLine("A implementation");
+        System.Console.WriteLine("A");
+    }
+}
+interface IB
+{
+    void BMethod();
+}
+
+class B : IB
+{
+    public void BMethod()
+    {
+        System.Console.WriteLine("B");
     }
 }
 
-class B : A
+class AB : IA, IB
 {
-    public override void Print()
-    {
-        System.Console.WriteLine("B implementation");
-    }
-}
+    A a = new A();
+    B b = new B();
 
-class C : A
-{
-    public override void Print()
+    public void AMethod()
     {
-        System.Console.WriteLine("C implementation");
+        a.AMethod();
     }
-}
+    public void BMethod()
+    {
+        b.BMethod();
+    }
 
+}
 class Program
 {
     public static void Main(string[] args)
     {
-        System.Console.WriteLine("hello");
+        AB ab = new AB();
+        ab.AMethod();
+        ab.BMethod();
     }
 }
