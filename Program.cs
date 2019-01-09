@@ -8,14 +8,11 @@ class Program
     public static void Main(string[] args)
     {
 
-        SampleDelegate delOne, delTwo, delThree, delFour;
-        delOne = new SampleDelegate(SampleMethodOne);
-        delTwo = new SampleDelegate(SampleMethodTwo);
-        delThree = new SampleDelegate(SampleMethodThree);
+        // using the same instance
+        SampleDelegate del = new SampleDelegate(SampleMethodOne);
+        del += SampleMethodTwo;
 
-        delFour = delOne + delThree;
-
-        delFour();
+        del();
 
     }
     public static void SampleMethodOne()
