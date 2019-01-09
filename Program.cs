@@ -1,48 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public delegate void HelloFunc(string Message);
 
-
+public delegate void SampleDelegate();
 class Program
 {
     public static void Main(string[] args)
     {
-        List<Employee> empList = new List<Employee>();
 
-        empList.Add(new Employee() { ID = 101, Name = "Tom", Salary = 5000, Experience = 5});
-        empList.Add(new Employee() { ID = 102, Name = "Sara", Salary = 4000, Experience = 4});
-        empList.Add(new Employee() { ID = 103, Name = "Max", Salary = 6000, Experience = 6});
-        empList.Add(new Employee() { ID = 104, Name = "Jerry", Salary = 3000, Experience = 3});
+        SampleDelegate delOne, delTwo, delThree, delFour;
+        delOne = new SampleDelegate(SampleMethodOne);
+        delTwo = new SampleDelegate(SampleMethodTwo);
+        delThree = new SampleDelegate(SampleMethodThree);
 
+        delFour = delOne + delThree;
 
-        Employee.PromoteEmployee(empList, emp => emp.Experience >= 5 );
-
-
+        delFour();
 
     }
-
-
-
-}
-
-delegate bool IsPromotable(Employee empl);
-class Employee
-{
-    public int ID{ get;set; }
-    public string Name{ get;set; }
-    public int Salary{ get;set; }
-    public int Experience{ get;set; }
-
-    public static void PromoteEmployee(List<Employee> employeeList, IsPromotable readyForPromo)
+    public static void SampleMethodOne()
     {
-        foreach(Employee employee in employeeList)
-        {
-            if (readyForPromo(employee))
-            {
-                System.Console.WriteLine(employee.Name + " promoted");
-            }
-        }
+        System.Console.WriteLine("method 1 envoked");
+    }
+    public static void SampleMethodTwo()
+    {
+        System.Console.WriteLine("method 2 envoked");
+    }
+    public static void SampleMethodThree()
+    {
+        System.Console.WriteLine("method 3 envoked");
     }
 
+
+
 }
+
