@@ -15,23 +15,14 @@ class Program
         empList.Add(new Employee() { ID = 103, Name = "Max", Salary = 6000, Experience = 6});
         empList.Add(new Employee() { ID = 104, Name = "Jerry", Salary = 3000, Experience = 3});
 
-        IsPromotable prm = new IsPromotable(PromoteEmp);
 
-        Employee.PromoteEmployee(empList, prm);
+        Employee.PromoteEmployee(empList, emp => emp.Experience >= 5 );
 
 
 
     }
 
-    public static bool PromoteEmp(Employee emp)
-    {
-        if (emp.Experience >= 5)
-        {
-            return true;
-        }else {
-            return false;
-        }
-    }
+
 
 }
 
