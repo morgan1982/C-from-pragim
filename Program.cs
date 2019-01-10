@@ -1,31 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 
 
-public delegate void SampleDelegate();
+
 class Program
 {
     public static void Main(string[] args)
     {
+        StreamReader streamReader = null;
+        try{
+            streamReader = new StreamReader("./text12.txt");
+            Console.WriteLine(streamReader.ReadToEnd());
+        }
+        catch(FileNotFoundException ex)
+        {
+            System.Console.WriteLine("Make sure the file {0} exist", ex.FileName);
+        }
+        // put the general exception to the bottom of the block
+        catch (Exception ex)
+        {
+            System.Console.WriteLine(ex.Message);
+        }
+        finally {
+            streamReader.Close();
+        }
 
-        // using the same instance
-        SampleDelegate del = new SampleDelegate(SampleMethodOne);
-        del += SampleMethodTwo;
 
-        del();
 
-    }
-    public static void SampleMethodOne()
-    {
-        System.Console.WriteLine("method 1 envoked");
-    }
-    public static void SampleMethodTwo()
-    {
-        System.Console.WriteLine("method 2 envoked");
-    }
-    public static void SampleMethodThree()
-    {
-        System.Console.WriteLine("method 3 envoked");
     }
 
 
