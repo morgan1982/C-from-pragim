@@ -21,8 +21,13 @@ class Program
         {
             System.Console.WriteLine(ex.Message);
         }
+        // if there is an exception the streamReader will not close and will not release the resources
+        // thus the streamReader is terminated inside the finnaly block
         finally {
-            streamReader.Close();
+            if (streamReader != null)
+            {
+                streamReader.Close();
+            }
         }
 
 
