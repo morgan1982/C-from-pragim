@@ -7,27 +7,24 @@ class Program
 {
     public static void Main(string[] args)
     {
-        StreamReader streamReader = null;
+
         try{
-            streamReader = new StreamReader("./text12.txt");
-            Console.WriteLine(streamReader.ReadToEnd());
+            System.Console.WriteLine("enter first number");
+            int fn = Convert.ToInt32(Console.ReadLine());
+            System.Console.WriteLine("enter second number");
+            int sn = Convert.ToInt32(Console.ReadLine());
+
+            int result = fn / sn;
+            System.Console.WriteLine(result);
         }
-        catch(FileNotFoundException ex)
-        {
-            System.Console.WriteLine("Make sure the file {0} exist", ex.FileName);
-        }
-        // put the general exception to the bottom of the block
         catch (Exception ex)
         {
-            System.Console.WriteLine(ex.Message);
-        }
-        // if there is an exception the streamReader will not close and will not release the resources
-        // thus the streamReader is terminated inside the finnaly block
-        finally {
-            if (streamReader != null)
-            {
-                streamReader.Close();
-            }
+            string filePath = @"C:\Sample Files\Log.txt";
+            StreamWriter sw = new StreamWriter(filePath, append:true);
+            sw.Write("{0}\n", ex.GetType().Name);
+            sw.Write(ex.StackTrace);
+            sw.Close();
+            System.Console.WriteLine("there is a problem");
         }
 
 
