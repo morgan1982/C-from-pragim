@@ -1,53 +1,41 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.Serialization;
 
-[Serializable]
-public class UserAllreadyLoggedInException : Exception
-{
-    public UserAllreadyLoggedInException() : base()
-    {
 
-    }
-    public UserAllreadyLoggedInException(string message) :base(message)
-    {
 
-    }
-    // constructor to catch inner exceptions
-    public UserAllreadyLoggedInException(string message,  Exception innerException) :base(message, innerException)
-    {
-
-    }
-    public UserAllreadyLoggedInException(SerializationInfo info, StreamingContext context)
-    : base(info, context)
-    {
-
-    }
-
-}
 
 class Program
 {
     public static void Main(string[] args)
     {
-        try
-        {
-            try{
-                int fn = 4;
-                int sn = 0;
-                int res = fn / sn;
-                System.Console.WriteLine(res);
+        int numerator;
+        bool isNumenatorSuccess = Int32.TryParse(Console.ReadLine(), out numerator);
 
-            }
-            catch(Exception ex)
-            {
-                System.Console.WriteLine(ex);
-                throw new UserAllreadyLoggedInException("cannot login.allready logged in", ex);
-            }
-        }
-        catch(Exception ex)
+        if (isNumenatorSuccess)
         {
-            System.Console.WriteLine("ex: {0}  inner: {1}",ex, ex.InnerException);
+            int denominator;
+            System.Console.WriteLine("Enter denominator\n");
+            bool isDenominatorSuccess = Int32.TryParse(Console.ReadLine(), out denominator);
+
+            if (isDenominatorSuccess && denominator != 0)
+            {
+                int result = numerator / denominator;
+                System.Console.WriteLine("result is {0}", result);
+            }
+            else
+            {
+                if (denominator == 0)
+                {
+                    System.Console.WriteLine("denominator cannot be 0");
+                }
+                else{
+                    System.Console.WriteLine("denominator has to be between {0} and {1}", Int32.MinValue, Int32.MinValue);
+                }
+            }
         }
+        else
+        {
+            System.Console.WriteLine("numerator has to be between {0} and {1}", Int32.MinValue, Int32.MaxValue);
+        }
+
     }
 }
