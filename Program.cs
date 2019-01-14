@@ -1,34 +1,53 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization;
 
-
-class A
+[Serializable]
+public class UserAllreadyLoggedInException : Exception
 {
-    public virtual void Print()
+    public UserAllreadyLoggedInException() : base()
     {
-        System.Console.WriteLine("A implementation");
-    }
-}
 
-class B : A
-{
-    public override void Print()
-    {
-        System.Console.WriteLine("B implementation");
     }
-}
+    public UserAllreadyLoggedInException(string message) :base(message)
+    {
 
-class C : A
-{
-    public override void Print()
-    {
-        System.Console.WriteLine("C implementation");
     }
+    // constructor to catch inner exceptions
+    public UserAllreadyLoggedInException(string message,  Exception innerException) :base(message, innerException)
+    {
+
+    }
+    public UserAllreadyLoggedInException(SerializationInfo info, StreamingContext context)
+    : base(info, context)
+    {
+
+    }
+
 }
 
 class Program
 {
     public static void Main(string[] args)
     {
-        System.Console.WriteLine("hello");
+        try
+        {
+            try{
+                int fn = 4;
+                int sn = 0;
+                int res = fn / sn;
+                System.Console.WriteLine(res);
+
+            }
+            catch(Exception ex)
+            {
+                System.Console.WriteLine(ex);
+                throw new UserAllreadyLoggedInException("cannot login.allready logged in", ex);
+            }
+        }
+        catch(Exception ex)
+        {
+            System.Console.WriteLine("ex: {0}  inner: {1}",ex, ex.InnerException);
+        }
     }
 }
