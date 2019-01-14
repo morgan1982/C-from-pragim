@@ -1,41 +1,57 @@
 ﻿using System;
 
+public class Customer
+{
+    public string name { get; set; }
+    public int gender { get; set; }
 
+    public static string GetGender(int gen)
+    {
+        switch(gen)
+        {
+            case 0:
+                return "Unknown";
+            case 1:
+                return "Male";
+            case 2:
+                return "Female";
+            default:
+                return "invalid data";
+        }
+    }
+}
 
 
 class Program
 {
     public static void Main(string[] args)
     {
-        int numerator;
-        bool isNumenatorSuccess = Int32.TryParse(Console.ReadLine(), out numerator);
 
-        if (isNumenatorSuccess)
-        {
-            int denominator;
-            System.Console.WriteLine("Enter denominator\n");
-            bool isDenominatorSuccess = Int32.TryParse(Console.ReadLine(), out denominator);
+        Customer[] customers = new Customer[3];
 
-            if (isDenominatorSuccess && denominator != 0)
-            {
-                int result = numerator / denominator;
-                System.Console.WriteLine("result is {0}", result);
-            }
-            else
-            {
-                if (denominator == 0)
-                {
-                    System.Console.WriteLine("denominator cannot be 0");
-                }
-                else{
-                    System.Console.WriteLine("denominator has to be between {0} and {1}", Int32.MinValue, Int32.MinValue);
-                }
-            }
-        }
-        else
+        customers[0] = new Customer
         {
-            System.Console.WriteLine("numerator has to be between {0} and {1}", Int32.MinValue, Int32.MaxValue);
+            name = "Mark",
+            gender = 1
+        };
+        customers[1] = new Customer
+        {
+            name = "tom",
+            gender = 1
+        };
+        customers[2] = new Customer
+        {
+            name = "tonya",
+            gender = 2
+        };
+
+        foreach (var customer in customers)
+        { 
+            System.Console.WriteLine("name: {0} genre: {1}", customer.name, Customer.GetGender(customer.gender));
         }
+
+
+
 
     }
 }
