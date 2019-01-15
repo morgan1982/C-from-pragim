@@ -1,5 +1,5 @@
 ﻿using System;
-
+// using konos;
 
 class A
 {
@@ -30,5 +30,8 @@ class Program
     public static void Main(string[] args)
     {
         System.Console.WriteLine("hello");
+        // Konos konaki = new Konos();
+        // System.Console.WriteLine(konaki.koniko);    
+        
     }
 }
