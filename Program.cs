@@ -2,6 +2,12 @@
 
 public class Customer
 {
+    #region Fields
+    private int _id;
+    private string _firstName;
+    private string _lastName;
+    #endregion
+
     public string name { get; set; }
     public string gender { get; set; }
 
