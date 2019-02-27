@@ -13,10 +13,12 @@ using AngleSharp.Dom;
 
 namespace AngleShardDemo1
 {
-    public class RegexFactory
+    internal class RegexFactory
     {
 
         public static string FontSize { get; } = "font-size([^px]*px;)";
+        public static string FontWeight { get; } = "font-weight([^px]*px;)";
+
         public static string Color { get; } = "(?<!-)color.*?;";
         public static string BackGroundColor { get; } = "background-color:(.*?);";
         public static string FontFamily { get; } = "font-family:(.*?);";
@@ -32,7 +34,7 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-            using (StreamReader reader = new StreamReader("C:\\templates\\courtyard.html"))
+            using (StreamReader reader = new StreamReader("C:\\templates\\grass.html"))
             {
                 string content = reader.ReadToEnd();
 
@@ -45,8 +47,6 @@ namespace AngleShardDemo1
 
                 var elements = ListElementForModification(document);
                 MainEngine(attributesString, elements);
-                //elements.ForEach(element =>  MainEngine(attributesString, element)); 
-
 
 
                 var final = document.DocumentElement.OuterHtml;
@@ -68,24 +68,16 @@ namespace AngleShardDemo1
                 document.GetElementById("__MANUFACTURER__")
             };
 
-            void add(IHtmlCollection<IElement> elements)
-            {
-                foreach (var element in elements)
-                {
-                    ElementsForModification.Add(element);
-                }
-            }
-
-            add(document.GetElementsByName("__FEATURES__"));
-            add(document.GetElementsByName("__DESCRIPTION__"));
-            add(document.GetElementsByName("__MANUFACTURER__"));
+            new List<string>() { "__FEATURES__", "__DESCRIPTION__", "__MANUFACTURER__" }
+                        .ForEach( value =>  document.GetElementsByName(value)
+                        .ToList()
+                        .ForEach( element => ElementsForModification.Add(element)));
 
             return ElementsForModification;
-            // pass the elements list to prepare for modification
         }
 
         // Sanitizer MainEngine
-        private static void MainEngine(StringBuilder elementString,List<IElement> elements)
+        private static void MainEngine(StringBuilder attributesBuilder,List<IElement> elements)
         {
             foreach (var element in elements)
             {
@@ -96,7 +88,7 @@ namespace AngleShardDemo1
                 else
                 {
                     
-                    elementString.Clear();
+                    attributesBuilder.Clear();
                     string inner = element.InnerHtml;
 
                     // pick the parent attributes
@@ -117,7 +109,7 @@ namespace AngleShardDemo1
                     var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
                     string parentStyle = PickStyle.Match(newParent).Value;
 
-                    elementString.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
+                    attributesBuilder.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
 
 
                     //Refactor checkers
@@ -128,6 +120,7 @@ namespace AngleShardDemo1
                         { "color", RegexFactory.Color },  
                         { "font-family", RegexFactory.FontFamily },  
                         { "font-size", RegexFactory.FontFamily },
+                        { "font-weight", RegexFactory.FontWeight },
                         { "<b>", "font-weight: bold;" },
                         { "<u>", "text-decoration: underline" },
                         { "<i>", "font-style: italics" },
@@ -140,8 +133,8 @@ namespace AngleShardDemo1
                         {
                             if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
                             {
-                                // assumes that the entry does not exists to the outer css!
-                                elementString.Insert(0, entry.Value);
+                                // assumes that the entry does not exists to the parent element css attributes!
+                                attributesBuilder.Insert(0, entry.Value);
                             }else
                             {
                                 var regex = RegexFactory.CreateRegex(entry.Value);
@@ -150,16 +143,16 @@ namespace AngleShardDemo1
                                 string innerHtmlCssAttribute = regex.Match(inner).Value;
                                 if (outerHtmlCssAttribute == "")
                                 {
-                                    elementString.Insert(0, innerHtmlCssAttribute);
+                                    attributesBuilder.Insert(0, innerHtmlCssAttribute);
                                 }else
                                 {
-                                    elementString.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
+                                    attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
                                 }
                             }
 
                         }
                     }
-                    element.SetAttribute("style", elementString.ToString());
+                    element.SetAttribute("style", attributesBuilder.ToString());
                 }
             }
         }
