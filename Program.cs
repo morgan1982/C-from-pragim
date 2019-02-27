@@ -15,17 +15,17 @@ namespace AngleShardDemo1
 {
     public class RegexFactory
     {
+
         public static string FontSize { get; } = "font-size([^px]*px;)";
         public static string Color { get; } = "(?<!-)color.*?;";
         public static string BackGroundColor { get; } = "background-color:(.*?);";
         public static string FontFamily { get; } = "font-family:(.*?);";
         public static string PickParentAttributes { get; } = "<(.*?)>";
         public static string PickStyle { get; } = "(?<=style=\")(.*)(?=\")";
-        // public static string PickStyle { get; } = "style=\"([^\"]*?\")";
-
-
+        
         public static Regex CreateRegex(string args) => new Regex(args);
     }
+
 
     class Program
     {
@@ -59,9 +59,6 @@ namespace AngleShardDemo1
 
         }
 
-        // replaces the bold 
-
-        // takes the string and prepares the list of the elements
         static List<IElement> Parser2(IHtmlDocument document)
         {
 
@@ -100,8 +97,8 @@ namespace AngleShardDemo1
                 else
                 {
                     
-                    elementString.Clear(); // clear the builder
-                    string inner = element.InnerHtml;  // inner
+                    elementString.Clear();
+                    string inner = element.InnerHtml;
 
                     // pick the parent attributes
 
@@ -112,13 +109,9 @@ namespace AngleShardDemo1
 
                     if (!parentHasStyle)
                     {
-                        // style="font-size: 30px;color: red;"
                         element.SetAttribute("style", "");
-                        // pick the style for the builder
-
-                        // find the index of first ";
-
                     }
+
                     string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
                     // pick the parent
 
@@ -127,20 +120,54 @@ namespace AngleShardDemo1
 
                     elementString.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
 
-                    // find the index of the first semicolon
-                    // elementString.
 
+                    //Refactor checkers
 
-                    var pickColor = RegexFactory.CreateRegex(RegexFactory.Color);
-                    string debugColor = pickColor.Match(inner).Value;
-                    elementString.Insert(0, pickColor.Match(inner).Value);
+                    Dictionary <string, string> cssAtrributes = new Dictionary<string, string>()
+                    {
+                        { "background-color", RegexFactory.BackGroundColor },
+                        { "color", RegexFactory.Color },  
+                        { "font-family", RegexFactory.FontFamily },  
+                        { "font-size", RegexFactory.FontFamily },
+                        { "<b>", "font-weight: bold;" },
+                        { "<u>", "text-decoration: underline" },
+                        { "<i>", "font-style: italics" },
+                        { "<strike>", "text-decoration: strike-through" }         
+                    };
+
+                    foreach(KeyValuePair<string, string> entry in cssAtrributes)
+                    {
+                        if (inner.Contains(entry.Key))
+                        {
+                            if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
+                            {
+                                // assumes that the entry does not exists to the outer css!
+                                elementString.Insert(0, entry.Value);
+                            }else
+                            {
+                                var regex = RegexFactory.CreateRegex(entry.Value);
+
+                                string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
+                                string innerHtmlCssAttribute = regex.Match(inner).Value;
+                                if (outerHtmlCssAttribute == "")
+                                {
+                                    elementString.Insert(0, innerHtmlCssAttribute);
+                                }else
+                                {
+                                    elementString.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
+                                }
+                            }
+
+                        }
+                    }
+
 
                     bool innerHasBackGroundColor = inner.Contains("background-color:");
                     if (innerHasBackGroundColor)
                     {
                         var backroundColorRegex = RegexFactory.CreateRegex(RegexFactory.BackGroundColor);
                         string debugBackgroundColor = backroundColorRegex.Match(inner).Value;
-                        string debubOuterStyle = backroundColorRegex.Match(parentStyle).Value;
+                        string debubOuterStyle = backroundColorRegex.Match(parentStyle).Value; 
                         if (debubOuterStyle == "")
                         {
                             elementString.Insert(0, backroundColorRegex.Match(inner).Value);
@@ -180,7 +207,7 @@ namespace AngleShardDemo1
                     bool innerHasStrikeThrough = inner.Contains("<strike>");
                     if (innerHasStrikeThrough)
                     {
-                        elementString.Insert(0, "text-decoration: line-trough;");
+                        elementString.Insert(0, "text-decoration: line-through;");
                     }
                     bool innerHasItalics = inner.Contains("<i>");
                     if (innerHasItalics)
