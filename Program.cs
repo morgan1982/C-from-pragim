@@ -21,6 +21,8 @@ namespace AngleShardDemo1
         public static string FontFamily { get; } = "";
         public static string PickParentAttributes { get; } = "<(.*?)>";
         public static string PickStyle { get; } = "style=\"([^\"]+\")";
+        // public static string PickStyle { get; } = "style=\"([^\"]*?\")";
+
 
         public static Regex CreateRegex(string args) => new Regex(args);
     }
@@ -30,7 +32,7 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-            using (StreamReader reader = new StreamReader("C:\\templates\\red.html"))
+            using (StreamReader reader = new StreamReader("C:\\templates\\grass.html"))
             {
                 string content = reader.ReadToEnd();
 
@@ -97,37 +99,84 @@ namespace AngleShardDemo1
                 }
                 else
                 {
+                    
                     elementString.Clear(); // clear the builder
-                    string inner = element.InnerHtml;
-                    string outer = element.OuterHtml;
+                    string inner = element.InnerHtml;  // inner
+
+                    bool parentHasStyle = element.OuterHtml.Contains("style"); // setStyle
+
+                    if (!parentHasStyle)
+                    {
+                        // style="font-size: 30px;color: red;"
+                        element.SetAttribute("style", "");
+                        // pick the style for the builder
+
+                        // find the index of first ";
+
+                    }
+                    string outer = element.OuterHtml; // Outer
+                    // pick the parent
+                    var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
+                    string parentElement = pickTheParentRegex.Match(outer).Value;
+
+                    var PickStyle = new Regex("(?<=style=\")(.*)(?=\")");
+                    // var styleRegex = RegexFactory.CreateRegex(RegexFactory.PickStyle);
+                    string parentStyle = PickStyle.Match(parentElement).Value;
+
+                    elementString.Append(parentStyle); // has to pick only the values
+
+                    // find the index of the first semicolon
+                    // elementString.
+
+
+
+
+
+                    string testStyle = "font-color: red;"; // have to include semicolon
+
+                    elementString.Insert(0, testStyle);
+                    
+                    string secondTest = "withd: 100px;";
+
+                    elementString.Insert(0, secondTest);
+
+
+                    System.Console.WriteLine(elementString.ToString());
+
+                    element.SetAttribute("style", elementString.ToString());
+                    System.Console.WriteLine(element.OuterHtml);
+
                     var pickParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
                     string parentAttributes = pickParentRegex.Match(outer).Value;
 
                     bool innerHasColor = inner.Contains("color:");
+                    if (innerHasColor)
+                    {
+                        var pickColor = RegexFactory.CreateRegex(RegexFactory.FontColor);
+                        string color = pickColor.Match(inner).Value;
+                    }
                     bool innerHasBackGroundColor = inner.Contains("background-color:");
                     bool innerHasFontFamily = inner.Contains("font-family:");
                     bool innerHasFontSize = inner.Contains("font-size");
                     // check the other Matches
                     bool innerHasBold = inner.Contains("<b>");
+                    if (innerHasBold)
+                    {
+                        elementString.Insert(0, "font-weight: 700;");
+                    }
                     bool innerHasUnderline = inner.Contains("<u>");
                     bool innerHasStrikeThrough = inner.Contains("<strike>");
                     bool innerHasItalics = inner.Contains("<i>");
 
+                    element.SetAttribute("style", elementString.ToString());
+
                     // check if parentHas Style
-                    bool parentHasStyle = outer.Contains("style");
                     // append the outer to the builder
                     
                     
-                    if (!parentHasStyle)
-                    {
-                        element.SetAttribute("style", "");
-                        elementString.Append(element.OuterHtml); // provide the value to the string builder
 
-                    }
 
-                    var styleRegex = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                    string parentStyle = styleRegex.Match(outer).Value;
-                    int semiIndex = parentStyle.IndexOf(";"); // find the index of the first semicolon
+
 
 
 
@@ -139,19 +188,18 @@ namespace AngleShardDemo1
                 
 
 
-                    bool ParentHasStyle = parentAttributes.Contains("style"); // checks if style
-                    if (ParentHasStyle)
-                    {
-                        var pickParentStyleRegex = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                        string parentStyle = pickParentStyleRegex.Match(parentAttributes).Value;
-                        elementString.Append(parentStyle);
-                    }
-                    else
-                    {
-                        elementString.Append(parentAttributes);
-                        string x = RegexFactory.FontColor;
+                    // bool ParentHasStyle = parentAttributes.Contains("style"); // checks if style
+                    // if (ParentHasStyle)
+                    // {
+                    //     // var pickParentStyleRegex = RegexFactory.CreateRegex(RegexFactory.PickStyle);
+                    //     // string parentStyles = pickParentStyleRegex.Match(parentAttributes).Value;
+                    // }
+                    // else
+                    // {
+                    //     elementString.Append(parentAttributes);
+                    //     string x = RegexFactory.FontColor;
 
-                    }
+                    // }
                 }
             }
 
