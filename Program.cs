@@ -16,11 +16,11 @@ namespace AngleShardDemo1
     public class RegexFactory
     {
         public static string FontSize { get; } = "font-size([^px]*px;)";
-        public static string FontColor { get; } = "";
-        public static string BackGroundColor { get; } = "";
-        public static string FontFamily { get; } = "";
+        public static string Color { get; } = "(?<!-)color.*?;";
+        public static string BackGroundColor { get; } = "background-color:(.*?);";
+        public static string FontFamily { get; } = "font-family:(.*?);";
         public static string PickParentAttributes { get; } = "<(.*?)>";
-        public static string PickStyle { get; } = "style=\"([^\"]+\")";
+        public static string PickStyle { get; } = "(?<=style=\")(.*)(?=\")";
         // public static string PickStyle { get; } = "style=\"([^\"]*?\")";
 
 
@@ -32,7 +32,7 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-            using (StreamReader reader = new StreamReader("C:\\templates\\grass.html"))
+            using (StreamReader reader = new StreamReader("C:\\templates\\courtyard.html"))
             {
                 string content = reader.ReadToEnd();
 
@@ -103,7 +103,12 @@ namespace AngleShardDemo1
                     elementString.Clear(); // clear the builder
                     string inner = element.InnerHtml;  // inner
 
-                    bool parentHasStyle = element.OuterHtml.Contains("style"); // setStyle
+                    // pick the parent attributes
+
+                    var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
+                    string parentElement = pickTheParentRegex.Match(element.OuterHtml).Value;
+
+                    bool parentHasStyle = parentElement.Contains("style");
 
                     if (!parentHasStyle)
                     {
@@ -114,92 +119,78 @@ namespace AngleShardDemo1
                         // find the index of first ";
 
                     }
-                    string outer = element.OuterHtml; // Outer
+                    string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
                     // pick the parent
-                    var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
-                    string parentElement = pickTheParentRegex.Match(outer).Value;
 
-                    var PickStyle = new Regex("(?<=style=\")(.*)(?=\")");
-                    // var styleRegex = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                    string parentStyle = PickStyle.Match(parentElement).Value;
+                    var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
+                    string parentStyle = PickStyle.Match(newParent).Value;
 
-                    elementString.Append(parentStyle); // has to pick only the values
+                    elementString.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
 
                     // find the index of the first semicolon
                     // elementString.
 
 
+                    var pickColor = RegexFactory.CreateRegex(RegexFactory.Color);
+                    string debugColor = pickColor.Match(inner).Value;
+                    elementString.Insert(0, pickColor.Match(inner).Value);
 
-
-
-                    string testStyle = "font-color: red;"; // have to include semicolon
-
-                    elementString.Insert(0, testStyle);
-                    
-                    string secondTest = "withd: 100px;";
-
-                    elementString.Insert(0, secondTest);
-
-
-                    System.Console.WriteLine(elementString.ToString());
-
-                    element.SetAttribute("style", elementString.ToString());
-                    System.Console.WriteLine(element.OuterHtml);
-
-                    var pickParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
-                    string parentAttributes = pickParentRegex.Match(outer).Value;
-
-                    bool innerHasColor = inner.Contains("color:");
-                    if (innerHasColor)
-                    {
-                        var pickColor = RegexFactory.CreateRegex(RegexFactory.FontColor);
-                        string color = pickColor.Match(inner).Value;
-                    }
                     bool innerHasBackGroundColor = inner.Contains("background-color:");
+                    if (innerHasBackGroundColor)
+                    {
+                        var backroundColorRegex = RegexFactory.CreateRegex(RegexFactory.BackGroundColor);
+                        string debugBackgroundColor = backroundColorRegex.Match(inner).Value;
+                        string debubOuterStyle = backroundColorRegex.Match(parentStyle).Value;
+                        if (debubOuterStyle == "")
+                        {
+                            elementString.Insert(0, backroundColorRegex.Match(inner).Value);
+                        }else
+                        {
+
+                            elementString.Replace(debubOuterStyle, debugBackgroundColor);
+                        }
+                    }
+
                     bool innerHasFontFamily = inner.Contains("font-family:");
+                    if (innerHasFontFamily)
+                    {
+                        var fontFamilyRegex = RegexFactory.CreateRegex(RegexFactory.FontFamily);
+                        elementString.Insert(0, fontFamilyRegex.Match(inner).Value);
+                    }
+
                     bool innerHasFontSize = inner.Contains("font-size");
+                    if (innerHasFontSize)
+                    {
+                        var fontSizeRegex = RegexFactory.CreateRegex(RegexFactory.FontSize);
+                        elementString.Insert(0, fontSizeRegex.Match(inner).Value);
+                    }
                     // check the other Matches
                     bool innerHasBold = inner.Contains("<b>");
                     if (innerHasBold)
                     {
                         elementString.Insert(0, "font-weight: 700;");
                     }
+
                     bool innerHasUnderline = inner.Contains("<u>");
+                    if (innerHasUnderline)
+                    {
+                        elementString.Insert(0, "text-decoration: underline;");
+                    }
+
                     bool innerHasStrikeThrough = inner.Contains("<strike>");
+                    if (innerHasStrikeThrough)
+                    {
+                        elementString.Insert(0, "text-decoration: line-trough;");
+                    }
                     bool innerHasItalics = inner.Contains("<i>");
+                    if (innerHasItalics)
+                    {
+                        elementString.Insert(0, "font-style: italic;");
+                    }
 
                     element.SetAttribute("style", elementString.ToString());
 
-                    // check if parentHas Style
-                    // append the outer to the builder
-                    
-                    
 
-
-
-
-
-
-                    if (innerHasFontSize)
-                    {
-                        var pickFontSize = RegexFactory.CreateRegex(RegexFactory.FontSize);
-                        string fontSizeAttributeInner = pickFontSize.Match(inner).Value;
-                    }
-                
-
-
-                    // bool ParentHasStyle = parentAttributes.Contains("style"); // checks if style
-                    // if (ParentHasStyle)
-                    // {
-                    //     // var pickParentStyleRegex = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                    //     // string parentStyles = pickParentStyleRegex.Match(parentAttributes).Value;
-                    // }
-                    // else
-                    // {
-                    //     elementString.Append(parentAttributes);
-                    //     string x = RegexFactory.FontColor;
-
-                    // }
                 }
             }
 
