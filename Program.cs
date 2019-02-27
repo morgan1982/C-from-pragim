@@ -42,9 +42,8 @@ namespace AngleShardDemo1
 
 
                 StringBuilder attributesString = new StringBuilder();
-                var elements = Parser2(document);
 
-
+                var elements = ListElementForModification(document);
                 MainEngine(attributesString, elements);
                 //elements.ForEach(element =>  MainEngine(attributesString, element)); 
 
@@ -59,7 +58,7 @@ namespace AngleShardDemo1
 
         }
 
-        static List<IElement> Parser2(IHtmlDocument document)
+        private static List<IElement> ListElementForModification(IHtmlDocument document)
         {
 
             // use a main StringBuilder and add and remove string to it.
@@ -159,60 +158,6 @@ namespace AngleShardDemo1
                             }
 
                         }
-                    }
-
-
-                    bool innerHasBackGroundColor = inner.Contains("background-color:");
-                    if (innerHasBackGroundColor)
-                    {
-                        var backroundColorRegex = RegexFactory.CreateRegex(RegexFactory.BackGroundColor);
-                        string debugBackgroundColor = backroundColorRegex.Match(inner).Value;
-                        string debubOuterStyle = backroundColorRegex.Match(parentStyle).Value; 
-                        if (debubOuterStyle == "")
-                        {
-                            elementString.Insert(0, backroundColorRegex.Match(inner).Value);
-                        }else
-                        {
-
-                            elementString.Replace(debubOuterStyle, debugBackgroundColor);
-                        }
-                    }
-
-                    bool innerHasFontFamily = inner.Contains("font-family:");
-                    if (innerHasFontFamily)
-                    {
-                        var fontFamilyRegex = RegexFactory.CreateRegex(RegexFactory.FontFamily);
-                        elementString.Insert(0, fontFamilyRegex.Match(inner).Value);
-                    }
-
-                    bool innerHasFontSize = inner.Contains("font-size");
-                    if (innerHasFontSize)
-                    {
-                        var fontSizeRegex = RegexFactory.CreateRegex(RegexFactory.FontSize);
-                        elementString.Insert(0, fontSizeRegex.Match(inner).Value);
-                    }
-                    // check the other Matches
-                    bool innerHasBold = inner.Contains("<b>");
-                    if (innerHasBold)
-                    {
-                        elementString.Insert(0, "font-weight: 700;");
-                    }
-
-                    bool innerHasUnderline = inner.Contains("<u>");
-                    if (innerHasUnderline)
-                    {
-                        elementString.Insert(0, "text-decoration: underline;");
-                    }
-
-                    bool innerHasStrikeThrough = inner.Contains("<strike>");
-                    if (innerHasStrikeThrough)
-                    {
-                        elementString.Insert(0, "text-decoration: line-through;");
-                    }
-                    bool innerHasItalics = inner.Contains("<i>");
-                    if (innerHasItalics)
-                    {
-                        elementString.Insert(0, "font-style: italic;");
                     }
 
                     element.SetAttribute("style", elementString.ToString());
