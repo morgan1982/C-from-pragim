@@ -34,7 +34,7 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-            using (StreamReader reader = new StreamReader("C:\\templates\\grass.html"))
+            using (StreamReader reader = new StreamReader("C:\\templates\\courtyard.html"))
             {
                 string content = reader.ReadToEnd();
 
@@ -81,11 +81,7 @@ namespace AngleShardDemo1
         {
             foreach (var element in elements)
             {
-                if (element == null)
-                {
-                    return;
-                }
-                else
+                if (element != null)
                 {
                     
                     attributesBuilder.Clear();
@@ -144,7 +140,8 @@ namespace AngleShardDemo1
                                 if (outerHtmlCssAttribute == "")
                                 {
                                     attributesBuilder.Insert(0, innerHtmlCssAttribute);
-                                }else
+                                }
+                                else
                                 {
                                     attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
                                 }
@@ -156,7 +153,6 @@ namespace AngleShardDemo1
                 }
             }
         }
-
         static void TestMod(IHtmlDocument document)
         {
             var description = document.GetElementById("__DESCRIPTION__");
