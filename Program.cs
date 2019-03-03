@@ -41,7 +41,16 @@ namespace AngleShardDemo1
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(content);
                 //TestMod(document);
-
+                var description = document.GetElementById("__DESCRIPTION__");
+                var attributes = description.Attributes;
+                foreach (var item in attributes)
+                {
+                    if (item.Name != "style")
+                    {
+                        continue;
+                    }
+                    var style = item.Value;
+                }
 
                 StringBuilder attributesString = new StringBuilder();
 
