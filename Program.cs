@@ -56,10 +56,6 @@ namespace AngleShardDemo1
                             childrenStyle.Add(attribute.Value);            
                         }
                     }
-                    // if (attr. == "style")
-                    // {
-
-                    // }
                 }
 
 
