@@ -34,14 +34,35 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-            using (StreamReader reader = new StreamReader("C:\\templates\\grass.html"))
+            using (StreamReader reader = new StreamReader("C:\\templates\\test.html"))
             {
                 string content = reader.ReadToEnd();
 
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(content);
                 //TestMod(document);
+                var childrenStyle = new List<string>();
+
                 var description = document.GetElementById("__DESCRIPTION__");
+
+                var childern = description.Children;
+                foreach (var child in childern)
+                {
+                    var childrenAttributes = child.Attributes;
+                    foreach (var attribute in childrenAttributes)
+                    {
+                        if (attribute.Name == "style")
+                        {
+                            childrenStyle.Add(attribute.Value);            
+                        }
+                    }
+                    // if (attr. == "style")
+                    // {
+
+                    // }
+                }
+
+
                 var attributes = description.Attributes;
                 foreach (var item in attributes)
                 {
@@ -52,10 +73,9 @@ namespace AngleShardDemo1
                     var style = item.Value;
                 }
 
-                StringBuilder attributesString = new StringBuilder();
 
                 var elements = ListElementForModification(document);
-                MainEngine(attributesString, elements);
+                MainEngine(elements);
 
 
                 var final = document.DocumentElement.OuterHtml;
@@ -77,92 +97,116 @@ namespace AngleShardDemo1
                 document.GetElementById("__MANUFACTURER__")
             };
 
-            new List<string>() { "__FEATURES__", "__DESCRIPTION__", "__MANUFACTURER__" }
-                        .ForEach( value =>  document.GetElementsByName(value)
-                        .ToList()
-                        .ForEach( element => ElementsForModification.Add(element)));
-
+            var tags = new String[] { "__FEATURES__", "__DESCRIPTION__", "__MANUFACTURER__" };
+            foreach(var tag in tags)
+            {
+                ElementsForModification.AddRange(document.GetElementsByName(tag).AsEnumerable());
+            }
+            ElementsForModification.RemoveAll(element => element == null);
             return ElementsForModification;
         }
 
         // Sanitizer MainEngine
-        private static void MainEngine(StringBuilder attributesBuilder,List<IElement> elements)
+        private static void MainEngine(List<IElement> elements)
         {
+            var attributesBuilder = new StringBuilder();
             foreach (var element in elements)
             {
-                if (element == null)
+
+                //  PICK THE STYLE OF THE OUTER ELEMENT
+                var parentAttributes = element.Attributes;
+
+                // convert to a method
+                string style = "";
+                foreach (var attribute in parentAttributes)
                 {
-                    return;
-                }
-                else
-                {
-                    
-                    attributesBuilder.Clear();
-                    string inner = element.InnerHtml;
-
-                    // pick the parent attributes
-
-                    var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
-                    string parentElement = pickTheParentRegex.Match(element.OuterHtml).Value;
-
-                    bool parentHasStyle = parentElement.Contains("style");
-
-                    if (!parentHasStyle)
+                    if (attribute.Name == "style")
                     {
-                        element.SetAttribute("style", "");
+                        style = attribute.Value;
                     }
+                }
 
-                    string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
-                    // pick the parent
+                // APPEND THE STYLE ATTRIBUTES TO THE BUILDER
+                attributesBuilder.Append(style);
 
-                    var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                    string parentStyle = PickStyle.Match(newParent).Value;
-
-                    attributesBuilder.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
-
-
-                    //Refactor checkers
-
-                    Dictionary <string, string> cssAtrributes = new Dictionary<string, string>()
+                // GRAP ALL THE CHILDREN STYLES
+                attributesBuilder.Clear();
+                var children = element.Children.AsEnumerable();
+                var childrenStyles = new StringBuilder();
+                foreach (var child in children)
+                {
+                    var attributes = child.Attributes;
+                    foreach (var attribute in attributes)
                     {
-                        { "background-color", RegexFactory.BackGroundColor },
-                        { "color", RegexFactory.Color },  
-                        { "font-family", RegexFactory.FontFamily },  
-                        { "font-size", RegexFactory.FontFamily },
-                        { "font-weight", RegexFactory.FontWeight },
-                        { "<b>", "font-weight: bold;" },
-                        { "<u>", "text-decoration: underline" },
-                        { "<i>", "font-style: italics" },
-                        { "<strike>", "text-decoration: strike-through" }         
-                    };
-
-                    foreach(KeyValuePair<string, string> entry in cssAtrributes)
-                    {
-                        if (inner.Contains(entry.Key))
+                        if (attribute.Name == "style")
                         {
-                            if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
-                            {
-                                // assumes that the entry does not exists to the parent element css attributes!
-                                attributesBuilder.Insert(0, entry.Value);
-                            }else
-                            {
-                                var regex = RegexFactory.CreateRegex(entry.Value);
-
-                                string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
-                                string innerHtmlCssAttribute = regex.Match(inner).Value;
-                                if (outerHtmlCssAttribute == "")
-                                {
-                                    attributesBuilder.Insert(0, innerHtmlCssAttribute);
-                                }else
-                                {
-                                    attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
-                                }
-                            }
-
+                            childrenStyles.Append(attribute.Value);
                         }
                     }
-                    element.SetAttribute("style", attributesBuilder.ToString());
                 }
+                string inner = element.InnerHtml;
+
+                // pick the parent attributes
+                var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
+                string parentElement = pickTheParentRegex.Match(element.OuterHtml).Value;
+
+                bool parentHasStyle = parentElement.Contains("style");
+
+                if (!parentHasStyle)
+                {
+                    element.SetAttribute("style", "");
+                }
+
+                string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
+                // pick the parent
+
+                var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
+                string parentStyle = PickStyle.Match(newParent).Value;
+
+                attributesBuilder.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
+
+
+                //Refactor checkers
+
+                Dictionary <string, string> cssAtrributes = new Dictionary<string, string>()
+                {
+                    { "background-color", RegexFactory.BackGroundColor },
+                    { "color", RegexFactory.Color },  
+                    { "font-family", RegexFactory.FontFamily },  
+                    { "font-size", RegexFactory.FontFamily },
+                    { "font-weight", RegexFactory.FontWeight },
+                    { "<b>", "font-weight: bold;" },
+                    { "<u>", "text-decoration: underline" },
+                    { "<i>", "font-style: italics" },
+                    { "<strike>", "text-decoration: strike-through" }         
+                };
+
+                foreach(KeyValuePair<string, string> entry in cssAtrributes)
+                {
+                    if (inner.Contains(entry.Key))
+                    {
+                        if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
+                        {
+                            // assumes that the entry does not exists to the parent element css attributes!
+                            attributesBuilder.Insert(0, entry.Value);
+                        }else
+                        {
+                            var regex = RegexFactory.CreateRegex(entry.Value);
+
+                            string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
+                            string innerHtmlCssAttribute = regex.Match(inner).Value;
+                            if (outerHtmlCssAttribute == "")
+                            {
+                                attributesBuilder.Insert(0, innerHtmlCssAttribute);
+                            }else
+                            {
+                                attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
+                            }
+                        }
+
+                    }
+                }
+                element.SetAttribute("style", attributesBuilder.ToString());
             }
         }
 
