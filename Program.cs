@@ -40,38 +40,10 @@ namespace AngleShardDemo1
 
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(content);
-                //TestMod(document);
-                var childrenStyle = new List<string>();
-
-                var description = document.GetElementById("__DESCRIPTION__");
-
-                var childern = description.Children;
-                foreach (var child in childern)
-                {
-                    var childrenAttributes = child.Attributes;
-                    foreach (var attribute in childrenAttributes)
-                    {
-                        if (attribute.Name == "style")
-                        {
-                            childrenStyle.Add(attribute.Value);            
-                        }
-                    }
-                }
-
-
-                var attributes = description.Attributes;
-                foreach (var item in attributes)
-                {
-                    if (item.Name != "style")
-                    {
-                        continue;
-                    }
-                    var style = item.Value;
-                }
-
 
                 var elements = ListElementForModification(document);
-                MainEngine(elements);
+                // MainEngine(elements);
+                RecursiveEngine(1, 3);
 
 
                 var final = document.DocumentElement.OuterHtml;
@@ -101,6 +73,17 @@ namespace AngleShardDemo1
             ElementsForModification.RemoveAll(element => element == null);
             return ElementsForModification;
         }
+
+        private static int RecursiveEngine(int n, int m)
+        {
+            int sum = n;
+            if (n < m)
+            {
+                n++;
+                return sum += RecursiveEngine(n, m);
+            }
+            return sum;
+        } 
 
         // Sanitizer MainEngine
         private static void MainEngine(List<IElement> elements)
