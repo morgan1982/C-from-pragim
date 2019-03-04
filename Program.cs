@@ -41,9 +41,14 @@ namespace AngleShardDemo1
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(content);
 
-                var elements = ListElementForModification(document);
+                var description = document.GetElementById("__DESCRIPTION__");
+
+
+                // var elements = ListElementForModification(document);
                 // MainEngine(elements);
-                RecursiveEngine(1, 3);
+                // List<IElement> elements = new List<IElement>();
+                StringBuilder styles = new StringBuilder();
+                RecursiveEngine(styles, description);
 
 
                 var final = document.DocumentElement.OuterHtml;
@@ -74,16 +79,19 @@ namespace AngleShardDemo1
             return ElementsForModification;
         }
 
-        private static int RecursiveEngine(int n, int m)
+        private static void RecursiveEngine(StringBuilder styles, IElement description)
         {
-            int sum = n;
-            if (n < m)
+
+            
+            foreach (var element in description.Children)
             {
-                n++;
-                return sum += RecursiveEngine(n, m);
+                // if(element.GetAttribute("style").Contains(";"))
+                styles.Append(element.GetAttribute("style") + "; ");
+                // elements.Add(element);
+                RecursiveEngine(styles, element);
             }
-            return sum;
-        } 
+        }
+
 
         // Sanitizer MainEngine
         private static void MainEngine(List<IElement> elements)
