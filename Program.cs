@@ -34,10 +34,6 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-<<<<<<< HEAD
-            int x = Factorial(5);
-        }
-=======
             using (StreamReader reader = new StreamReader("C:\\templates\\test.html"))
             {
                 string content = reader.ReadToEnd();
@@ -54,15 +50,14 @@ namespace AngleShardDemo1
                 StringBuilder styles = new StringBuilder();
                 RecursiveEngine(styles, description);
 
->>>>>>> refactor
 
-        public static int Factorial(int num)
-        {
-            if (num == 0)
-            {
-                return 1;
+                var final = document.DocumentElement.OuterHtml;
+              
+                Console.WriteLine(final);
             }
-            return num * Factorial(num - 1);
+
+            Console.ReadLine();
+
         }
 
         private static List<IElement> ListElementForModification(IHtmlDocument document)
@@ -84,15 +79,11 @@ namespace AngleShardDemo1
             return ElementsForModification;
         }
 
-        private static void RecursiveEngine(StringBuilder styles, IElement description)
-        {
-
-            
-            foreach (var element in description.Children)
+        private static void RecursiveEngine(StringBuilder styles, IElement parent)
+        { 
+            foreach (var element in parent.Children)
             {
-                // if(element.GetAttribute("style").Contains(";"))
                 styles.Append(element.GetAttribute("style") + "; ");
-                // elements.Add(element);
                 RecursiveEngine(styles, element);
             }
         }
