@@ -34,25 +34,16 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
-            using (StreamReader reader = new StreamReader("C:\\templates\\test.html"))
+            int x = Factorial(5);
+        }
+
+        public static int Factorial(int num)
+        {
+            if (num == 0)
             {
-                string content = reader.ReadToEnd();
-
-                var parser = new HtmlParser();
-                var document = parser.ParseDocument(content);
-
-                var elements = ListElementForModification(document);
-                // MainEngine(elements);
-                RecursiveEngine(1, 3);
-
-
-                var final = document.DocumentElement.OuterHtml;
-              
-                Console.WriteLine(final);
+                return 1;
             }
-
-            Console.ReadLine();
-
+            return num * Factorial(num - 1);
         }
 
         private static List<IElement> ListElementForModification(IHtmlDocument document)
