@@ -57,19 +57,8 @@ namespace AngleShardDemo1
         }
     }
 
-    internal class InnerTags : RegexFactory
+    internal class InnerTags
     {
-        public static Dictionary<string, string> RegexStrings(string args)
-        {
-            return new Dictionary<string, string>() {
-                { "background-color", RegexFactory.BackGroundColor },
-                { "color", RegexFactory.Color },  
-                { "font-family", RegexFactory.FontFamily },  
-                { "font-size", RegexFactory.FontSize },
-                { "font-weight", RegexFactory.FontWeight }
-            };
-
-        }
         public static Dictionary<string, string> GetTags()
         {
             return new Dictionary<string, string>() {
