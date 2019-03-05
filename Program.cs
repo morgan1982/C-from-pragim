@@ -115,7 +115,6 @@ namespace AngleShardDemo1
 
         private static List<IElement> ListElementForModification(IHtmlDocument document)
         {
-
             // use a main StringBuilder and add and remove string to it.
             var ElementsForModification = new List<IElement>()
             {
