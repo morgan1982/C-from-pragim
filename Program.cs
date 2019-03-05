@@ -41,14 +41,19 @@ namespace AngleShardDemo1
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(content);
 
-                var description = document.GetElementById("__DESCRIPTION__");
+                var description = document.GetElementsByName("__DESCRIPTION__");
+
+                StringBuilder styles = new StringBuilder();
+
+                foreach (var el in description)
+                {
+                    RecursiveEngine(styles, el);
+                }
 
 
                 // var elements = ListElementForModification(document);
                 // MainEngine(elements);
                 // List<IElement> elements = new List<IElement>();
-                StringBuilder styles = new StringBuilder();
-                RecursiveEngine(styles, description);
 
 
                 var final = document.DocumentElement.OuterHtml;
@@ -83,6 +88,8 @@ namespace AngleShardDemo1
         { 
             foreach (var element in parent.Children)
             {
+                var idregex = new Regex("__[^__]*__");
+                string id = idregex.Match(parent.OuterHtml).Value; // use this in next method to replace children with this string as content
                 styles.Append(element.GetAttribute("style") + "; ");
                 RecursiveEngine(styles, element);
             }
@@ -190,37 +197,9 @@ namespace AngleShardDemo1
                     }
                 }
                 element.SetAttribute("style", attributesBuilder.ToString());
+                element.InnerHtml = "";
             }
         }
-
-        static void TestMod(IHtmlDocument document)
-        {
-            var description = document.GetElementById("__DESCRIPTION__");
-
-            var styleRegex = new Regex("style=\"([^\"]+\")");
-
-            // used by the string builder to insert the style to the correct index
-            string parentStyle = styleRegex.Match(description.OuterHtml).Value;
-            int semiIndex = parentStyle.IndexOf(";"); // find the index of the first semicolon
-
-
-            StringBuilder styleOfParentBuilder = new StringBuilder(styleRegex.Match(description.OuterHtml).Value);
-
-
-            string inner = description.InnerHtml;
-            bool isBold = inner.Contains("<b>");
-
-            if (isBold)
-            {
-                styleOfParentBuilder.Insert(semiIndex, "; font-weight: bold "); // inserts the attribute to the style
-                string finalStyle = styleOfParentBuilder.ToString();
-                var splitStyleOfParent = finalStyle.Split('"');
-
-                description.SetAttribute("style", splitStyleOfParent[1]);
-            }
-
-        }
-
     }
 
 }
