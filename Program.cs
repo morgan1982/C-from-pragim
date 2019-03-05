@@ -34,19 +34,30 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
+<<<<<<< HEAD
+            using (StreamReader reader = new StreamReader("C:\\templates\\test.html"))
+=======
             using (StreamReader reader = new StreamReader("C:\\templates\\courtyard.html"))
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
             {
                 string content = reader.ReadToEnd();
 
                 var parser = new HtmlParser();
                 var document = parser.ParseDocument(content);
-                //TestMod(document);
+
+                var description = document.GetElementsByName("__DESCRIPTION__");
+
+                StringBuilder styles = new StringBuilder();
+
+                foreach (var el in description)
+                {
+                    RecursiveEngine(styles, el);
+                }
 
 
-                StringBuilder attributesString = new StringBuilder();
-
-                var elements = ListElementForModification(document);
-                MainEngine(attributesString, elements);
+                // var elements = ListElementForModification(document);
+                // MainEngine(elements);
+                // List<IElement> elements = new List<IElement>();
 
 
                 var final = document.DocumentElement.OuterHtml;
@@ -68,71 +79,132 @@ namespace AngleShardDemo1
                 document.GetElementById("__MANUFACTURER__")
             };
 
-            new List<string>() { "__FEATURES__", "__DESCRIPTION__", "__MANUFACTURER__" }
-                        .ForEach( value =>  document.GetElementsByName(value)
-                        .ToList()
-                        .ForEach( element => ElementsForModification.Add(element)));
-
+            var tags = new String[] { "__FEATURES__", "__DESCRIPTION__", "__MANUFACTURER__" };
+            foreach(var tag in tags)
+            {
+                ElementsForModification.AddRange(document.GetElementsByName(tag).AsEnumerable());
+            }
+            ElementsForModification.RemoveAll(element => element == null);
             return ElementsForModification;
         }
 
+        private static void RecursiveEngine(StringBuilder styles, IElement parent)
+        { 
+            foreach (var element in parent.Children)
+            {
+                var idregex = new Regex("__[^__]*__");
+                string id = idregex.Match(parent.OuterHtml).Value; // use this in next method to replace children with this string as content
+                styles.Append(element.GetAttribute("style") + "; ");
+                RecursiveEngine(styles, element);
+            }
+        }
+
+
         // Sanitizer MainEngine
-        private static void MainEngine(StringBuilder attributesBuilder,List<IElement> elements)
+        private static void MainEngine(List<IElement> elements)
         {
+            var attributesBuilder = new StringBuilder();
             foreach (var element in elements)
             {
+<<<<<<< HEAD
+=======
                 if (element != null)
                 {
                     
                     attributesBuilder.Clear();
                     string inner = element.InnerHtml;
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
 
-                    // pick the parent attributes
+                //  PICK THE STYLE OF THE OUTER ELEMENT
+                var parentAttributes = element.Attributes;
 
-                    var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
-                    string parentElement = pickTheParentRegex.Match(element.OuterHtml).Value;
-
-                    bool parentHasStyle = parentElement.Contains("style");
-
-                    if (!parentHasStyle)
+                // convert to a method
+                string style = "";
+                foreach (var attribute in parentAttributes)
+                {
+                    if (attribute.Name == "style")
                     {
-                        element.SetAttribute("style", "");
+                        style = attribute.Value;
                     }
+                }
 
-                    string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
-                    // pick the parent
+                // APPEND THE STYLE ATTRIBUTES TO THE BUILDER
+                attributesBuilder.Append(style);
 
-                    var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                    string parentStyle = PickStyle.Match(newParent).Value;
-
-                    attributesBuilder.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
-
-
-                    //Refactor checkers
-
-                    Dictionary <string, string> cssAtrributes = new Dictionary<string, string>()
+                // GRAP ALL THE CHILDREN STYLES
+                attributesBuilder.Clear();
+                var children = element.Children.AsEnumerable();
+                var childrenStyles = new StringBuilder();
+                foreach (var child in children)
+                {
+                    var attributes = child.Attributes;
+                    foreach (var attribute in attributes)
                     {
-                        { "background-color", RegexFactory.BackGroundColor },
-                        { "color", RegexFactory.Color },  
-                        { "font-family", RegexFactory.FontFamily },  
-                        { "font-size", RegexFactory.FontFamily },
-                        { "font-weight", RegexFactory.FontWeight },
-                        { "<b>", "font-weight: bold;" },
-                        { "<u>", "text-decoration: underline" },
-                        { "<i>", "font-style: italics" },
-                        { "<strike>", "text-decoration: strike-through" }         
-                    };
-
-                    foreach(KeyValuePair<string, string> entry in cssAtrributes)
-                    {
-                        if (inner.Contains(entry.Key))
+                        if (attribute.Name == "style")
                         {
-                            if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
+                            childrenStyles.Append(attribute.Value);
+                        }
+                    }
+                }
+                string inner = element.InnerHtml;
+
+                // pick the parent attributes
+                var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
+                string parentElement = pickTheParentRegex.Match(element.OuterHtml).Value;
+
+                bool parentHasStyle = parentElement.Contains("style");
+
+                if (!parentHasStyle)
+                {
+                    element.SetAttribute("style", "");
+                }
+
+                string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
+                // pick the parent
+
+                var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
+                string parentStyle = PickStyle.Match(newParent).Value;
+
+                attributesBuilder.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
+
+
+                //Refactor checkers
+
+                Dictionary <string, string> cssAtrributes = new Dictionary<string, string>()
+                {
+                    { "background-color", RegexFactory.BackGroundColor },
+                    { "color", RegexFactory.Color },  
+                    { "font-family", RegexFactory.FontFamily },  
+                    { "font-size", RegexFactory.FontFamily },
+                    { "font-weight", RegexFactory.FontWeight },
+                    { "<b>", "font-weight: bold;" },
+                    { "<u>", "text-decoration: underline" },
+                    { "<i>", "font-style: italics" },
+                    { "<strike>", "text-decoration: strike-through" }         
+                };
+
+                foreach(KeyValuePair<string, string> entry in cssAtrributes)
+                {
+                    if (inner.Contains(entry.Key))
+                    {
+                        if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
+                        {
+                            // assumes that the entry does not exists to the parent element css attributes!
+                            attributesBuilder.Insert(0, entry.Value);
+                        }else
+                        {
+                            var regex = RegexFactory.CreateRegex(entry.Value);
+
+                            string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
+                            string innerHtmlCssAttribute = regex.Match(inner).Value;
+                            if (outerHtmlCssAttribute == "")
                             {
-                                // assumes that the entry does not exists to the parent element css attributes!
-                                attributesBuilder.Insert(0, entry.Value);
+                                attributesBuilder.Insert(0, innerHtmlCssAttribute);
                             }else
                             {
+<<<<<<< HEAD
+                                attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
+=======
                                 var regex = RegexFactory.CreateRegex(entry.Value);
 
                                 string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
@@ -145,14 +217,18 @@ namespace AngleShardDemo1
                                 {
                                     attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
                                 }
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
                             }
-
                         }
+
                     }
-                    element.SetAttribute("style", attributesBuilder.ToString());
                 }
+                element.SetAttribute("style", attributesBuilder.ToString());
+                element.InnerHtml = "";
             }
         }
+<<<<<<< HEAD
+=======
         static void TestMod(IHtmlDocument document)
         {
             var description = document.GetElementById("__DESCRIPTION__");
@@ -181,6 +257,7 @@ namespace AngleShardDemo1
 
         }
 
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
     }
 
 }
