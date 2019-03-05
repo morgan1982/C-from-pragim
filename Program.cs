@@ -34,7 +34,11 @@ namespace AngleShardDemo1
         static void Main(string[] args)
         {
 
+<<<<<<< HEAD
             using (StreamReader reader = new StreamReader("C:\\templates\\test.html"))
+=======
+            using (StreamReader reader = new StreamReader("C:\\templates\\courtyard.html"))
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
             {
                 string content = reader.ReadToEnd();
 
@@ -102,6 +106,14 @@ namespace AngleShardDemo1
             var attributesBuilder = new StringBuilder();
             foreach (var element in elements)
             {
+<<<<<<< HEAD
+=======
+                if (element != null)
+                {
+                    
+                    attributesBuilder.Clear();
+                    string inner = element.InnerHtml;
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
 
                 //  PICK THE STYLE OF THE OUTER ELEMENT
                 var parentAttributes = element.Attributes;
@@ -190,7 +202,22 @@ namespace AngleShardDemo1
                                 attributesBuilder.Insert(0, innerHtmlCssAttribute);
                             }else
                             {
+<<<<<<< HEAD
                                 attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
+=======
+                                var regex = RegexFactory.CreateRegex(entry.Value);
+
+                                string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
+                                string innerHtmlCssAttribute = regex.Match(inner).Value;
+                                if (outerHtmlCssAttribute == "")
+                                {
+                                    attributesBuilder.Insert(0, innerHtmlCssAttribute);
+                                }
+                                else
+                                {
+                                    attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
+                                }
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
                             }
                         }
 
@@ -200,6 +227,37 @@ namespace AngleShardDemo1
                 element.InnerHtml = "";
             }
         }
+<<<<<<< HEAD
+=======
+        static void TestMod(IHtmlDocument document)
+        {
+            var description = document.GetElementById("__DESCRIPTION__");
+
+            var styleRegex = new Regex("style=\"([^\"]+\")");
+
+            // used by the string builder to insert the style to the correct index
+            string parentStyle = styleRegex.Match(description.OuterHtml).Value;
+            int semiIndex = parentStyle.IndexOf(";"); // find the index of the first semicolon
+
+
+            StringBuilder styleOfParentBuilder = new StringBuilder(styleRegex.Match(description.OuterHtml).Value);
+
+
+            string inner = description.InnerHtml;
+            bool isBold = inner.Contains("<b>");
+
+            if (isBold)
+            {
+                styleOfParentBuilder.Insert(semiIndex, "; font-weight: bold "); // inserts the attribute to the style
+                string finalStyle = styleOfParentBuilder.ToString();
+                var splitStyleOfParent = finalStyle.Split('"');
+
+                description.SetAttribute("style", splitStyleOfParent[1]);
+            }
+
+        }
+
+>>>>>>> d3c7241cf5d104e8d3e6fe24ae25495d59001107
     }
 
 }
