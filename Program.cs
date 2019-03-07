@@ -13,7 +13,7 @@ using AngleSharp.Dom;
 
 namespace AngleShardDemo1
 {
-    internal class RegexFactory
+    internal class RegexStrings
     {
         public static string FontSize { get; } = "font-size[^px]*(px|;)";
         public static string FontWeight { get; } = "font-weight[^px]*(px|;)";
@@ -29,15 +29,14 @@ namespace AngleShardDemo1
         { 
             // does not invoke regexes rather than the string that is used to inovce the appropriate regex
             _attributes = new Dictionary<string,string>() {
-                { "background-color", RegexFactory.BackGroundColor },
-                { "color", RegexFactory.Color },  
-                { "font-family", RegexFactory.FontFamily },  
-                { "font-size", RegexFactory.FontSize },
-                { "font-weight", RegexFactory.FontWeight }                
+                { "background-color", RegexStrings.BackGroundColor },
+                { "color", RegexStrings.Color },  
+                { "font-family", RegexStrings.FontFamily },  
+                { "font-size", RegexStrings.FontSize },
+                { "font-weight", RegexStrings.FontWeight }                
             }; 
         }
         private static Dictionary<string,string> _attributes;
-        public static Dictionary<string,string> Attributes { get { return _attributes; } } 
 
         ///<summary>
         ///creates the regex using the atribute in the constructor 
@@ -47,7 +46,6 @@ namespace AngleShardDemo1
         ///getRegex("background-color")
         ///</code>
         ///</example>
-
         public static Regex getRegex(string valueString)
         {
             string reg = "";
@@ -61,7 +59,7 @@ namespace AngleShardDemo1
             return new Regex(reg);
         }
     }
-
+    
     internal class InnerTags
     {
         public static Dictionary<string, string> GetTags()
@@ -99,7 +97,6 @@ namespace AngleShardDemo1
                 // }
                 RecursiveEngine(elements);
                 // MainEngine(elements);
-
 
                 var final = document.DocumentElement.OuterHtml;
               
