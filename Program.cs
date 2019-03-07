@@ -15,23 +15,19 @@ namespace AngleShardDemo1
 {
     internal class RegexFactory
     {
+        public static string FontSize { get; } = "font-size[^px]*(px|;)";
+        public static string FontWeight { get; } = "font-weight[^px]*(px|;)";
 
-        public static string FontSize { get; } = "font-size([^px]*px;)";
-        public static string FontWeight { get; } = "font-weight([^px]*px;)";
-
-        public static string Color { get; } = "(?<!-)color.*?[;\"]";
-        public static string BackGroundColor { get; } = "background-color:(.*?);";
-        public static string FontFamily { get; } = "font-family:(.*?);";
-        public static string PickParentAttributes { get; } = "<(.*?)>";
-        public static string PickStyle { get; } = "(?<=style=\")(.*)(?=\")";
-        
-        public static Regex CreateRegex(string args) => new Regex(args);
+        public static string Color { get; } = "(?<!-)color.*?(;|$)";
+        public static string BackGroundColor { get; } = "background-color:.*?(;|$)";
+        public static string FontFamily { get; } = "font-family:.*?(;|$)";
     }
 
     internal static class InvokeRegex
     {
         static InvokeRegex()
         { 
+            // does not invoke regexes rather than the string that is used to inovce the appropriate regex
             _attributes = new Dictionary<string,string>() {
                 { "background-color", RegexFactory.BackGroundColor },
                 { "color", RegexFactory.Color },  
@@ -41,7 +37,16 @@ namespace AngleShardDemo1
             }; 
         }
         private static Dictionary<string,string> _attributes;
-        public static Dictionary<string,string> Attributes { get { return _attributes; } }
+        public static Dictionary<string,string> Attributes { get { return _attributes; } } 
+
+        ///<summary>
+        ///creates the regex using the atribute in the constructor 
+        ///</summary>
+        ///<example>
+        ///<code>
+        ///getRegex("background-color")
+        ///</code>
+        ///</example>
 
         public static Regex getRegex(string valueString)
         {
@@ -69,12 +74,6 @@ namespace AngleShardDemo1
             };
         }
     } 
-//   private Dictionary<int,string> _map;
-//   public Dictionary<int,string> Map { get { return _map; } }
-//   public Example() { _map = new Dictionary<int,string>(); }
-// }
-//     }
-
 
     class Program
     {
@@ -89,6 +88,15 @@ namespace AngleShardDemo1
                 var document = parser.ParseDocument(content);
 
                 var elements = ListElementForModification(document);
+                
+                // TESTING GROUND
+                // var descriptions = document.GetElementsByName("__DESCRIPTION__");
+                // foreach (var el in descriptions)
+                // {
+                //     var style = el.GetAttribute("style");
+                //     var regex = InvokeRegex.getRegex("font-size");
+                //     string color = regex.Match(style).Value;
+                // }
                 RecursiveEngine(elements);
                 // MainEngine(elements);
 
@@ -124,7 +132,12 @@ namespace AngleShardDemo1
         { 
             foreach (var element in parent.Children)
             {
-                styles.Append(element.GetAttribute("style") + "; ");
+                var styleString = element.GetAttribute("style");
+                if (styleString != null)
+                {
+                    var lastIndex = styleString[styleString.Length -1];
+                    styles.Append(lastIndex == ';' ? styleString + " " : styleString + "; ");
+                }
                 RecursiveCore(styles, element);
             }
         }
@@ -146,19 +159,21 @@ namespace AngleShardDemo1
                     if(innerHtml.Contains(item.Key))
                     {
                         attributesBuilder.Insert(0, item.Value);
-                    }                  
+                    }                                       
                 }
 
                 //check parent for style
                 string parentStyle = element.GetAttribute("style");
-                StringBuilder parentStyleBuilder = new StringBuilder(element.GetAttribute("style")); // style of the parent
+                var parentStyleBuilder = new StringBuilder(parentStyle);
+                  // style of the parent
                 if (parentStyleBuilder.Length != 0)
                 {
                     string[] attributes = new string[] { 
                         "font-size",
                         "background-color",
                         "color",
-                        "font-family" };
+                        "font-family",
+                        "font-weight" };
 
                     // clean the parent styles if the same attributes exists to childs
                     foreach (var attr in attributes)
@@ -170,125 +185,18 @@ namespace AngleShardDemo1
                             var attributeRegex = InvokeRegex.getRegex(attr);
                             string parentCssAttribute = attributeRegex.Match(parentStyle).Value;
                             // string childCssAttribute = attributeRegex.Match(innerAttributes).Value;
-                            parentStyleBuilder.Replace(parentCssAttribute, ""); // removes the current attribute from parent
-
-                            
+                            parentStyleBuilder.Replace(parentCssAttribute, ""); // removes the current attribute from parent                           
                         }
                     }
                     // inserts remaining parentStyles to the mainAttributesBuilder
-                    attributesBuilder.Insert(0, parentStyleBuilder); 
+                    attributesBuilder.Append(parentStyleBuilder); 
                 }
-                element.SetAttribute("style", attributesBuilder.ToString()); // sets the styleoftheParent
+                element.SetAttribute("style", attributesBuilder.ToString()); // append the new parrent attributes to the element
                 
-
                 // Clear the inner of the element
                 var contentRegex = new Regex("__[^__]*__");
-                string contentFinal = contentRegex.Match(element.OuterHtml).Value; // use this in next method to replace children with this string as content
-                element.InnerHtml = contentFinal;
-            }
-        }
-
-
-        // Sanitizer MainEngine
-        private static void MainEngine(List<IElement> elements)
-        {
-            var attributesBuilder = new StringBuilder();
-            foreach (var element in elements)
-            {
-
-                //  PICK THE STYLE OF THE OUTER ELEMENT
-                var parentAttributes = element.Attributes;
-
-                // convert to a method
-                string style = "";
-                foreach (var attribute in parentAttributes)
-                {
-                    if (attribute.Name == "style")
-                    {
-                        style = attribute.Value;
-                    }
-                }
-
-                // APPEND THE STYLE ATTRIBUTES TO THE BUILDER
-                attributesBuilder.Append(style);
-
-                // GRAP ALL THE CHILDREN STYLES
-                attributesBuilder.Clear();
-                var children = element.Children.AsEnumerable();
-                var childrenStyles = new StringBuilder();
-                foreach (var child in children)
-                {
-                    var attributes = child.Attributes;
-                    foreach (var attribute in attributes)
-                    {
-                        if (attribute.Name == "style")
-                        {
-                            childrenStyles.Append(attribute.Value);
-                        }
-                    }
-                }
-                string inner = element.InnerHtml;
-
-                // pick the parent attributes
-                var pickTheParentRegex = RegexFactory.CreateRegex(RegexFactory.PickParentAttributes);
-                string parentElement = pickTheParentRegex.Match(element.OuterHtml).Value;
-
-                bool parentHasStyle = parentElement.Contains("style");
-
-                if (!parentHasStyle)
-                {
-                    element.SetAttribute("style", "");
-                }
-
-                string newParent = pickTheParentRegex.Match(element.OuterHtml).Value; // Outer
-                // pick the parent
-
-                var PickStyle = RegexFactory.CreateRegex(RegexFactory.PickStyle);
-                string parentStyle = PickStyle.Match(newParent).Value;
-
-                attributesBuilder.Append(parentStyle); // has to pick only the values contains an empty string or the values of the style attribute
-
-
-                //Refactor checkers
-
-                Dictionary <string, string> cssAtrributes = new Dictionary<string, string>()
-                {
-
-                    { "<b>", "font-weight: bold;" },
-                    { "<u>", "text-decoration: underline" },
-                    { "<i>", "font-style: italics" },
-                    { "<strike>", "text-decoration: strike-through" }         
-                };
-
-                foreach(KeyValuePair<string, string> entry in cssAtrributes)
-                {
-                    if (inner.Contains(entry.Key))
-                    {
-                        if (entry.Key == "<b>" | entry.Key == "<u>" | entry.Key == "<strike>" | entry.Key == "<i>")
-                        {
-                            // assumes that the entry does not exists to the parent element css attributes!
-                            attributesBuilder.Insert(0, entry.Value);
-                        }else
-                        {
-                            var regex = RegexFactory.CreateRegex(entry.Value);
-
-                            string outerHtmlCssAttribute = regex.Match(parentStyle).Value;
-                            string innerHtmlCssAttribute = regex.Match(inner).Value;
-                            if (outerHtmlCssAttribute == "")
-                            {
-                                attributesBuilder.Insert(0, innerHtmlCssAttribute);
-                            }else
-                            {
-                                attributesBuilder.Replace(outerHtmlCssAttribute, innerHtmlCssAttribute);
-                            }
-                        }
-
-                    }
-                }
-                element.SetAttribute("style", attributesBuilder.ToString());
-                element.InnerHtml = "";
+                element.InnerHtml = contentRegex.Match(element.OuterHtml).Value; // use this in next method to replace children with this string as content
             }
         }
     }
-
 }
